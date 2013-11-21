@@ -4,9 +4,9 @@ squash-portage
 Script to generate squashfs files for the Gentoo portage tree.
 
 Gentoo portage consists of lots (too many) small files, and often occupies
->500MB of disk space.  A much preferable way to store and use it is with a
-squashfs image (50MB).  Once you have the squashfs image, use this script
-to update it.
+more than 500MB of disk space.  A much preferable way to store and use it
+is with a squashfs image (50MB).  Once you have the squashfs image, use this
+script to update it.
 
 While you can simply download a new portage tarball, unpack it, and run
 squashfs on it, that takes a lot of time.  This is a script that mounts
@@ -25,9 +25,11 @@ Prerequisites
 
 You need your /usr/portage to be read-only, so set the following variables
 in /etc/portage/make.conf:
-  DISTDIR=/var/portage/distfiles
-  PKGDIR=/var/portage/packages
-  RPMDIR=/var/portage/rpm
+
+    DISTDIR=/var/portage/distfiles
+    PKGDIR=/var/portage/packages
+    RPMDIR=/var/portage/rpm
+
 (and of course, create those directories)
 
 Next, for this script, you need overlayfs or unionfs.  These are available
