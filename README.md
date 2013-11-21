@@ -23,8 +23,18 @@ portage updates.
 Prerequisites
 =============
 
-You need your /usr/portage to be read-only, so set the following variables
-in /etc/portage/make.conf:
+  * Overlayfs or Unionfs
+  * An existing /usr/portage directory
+  * All writable portions of portage relocated outside that tree
+
+For this script, you need overlayfs or unionfs support inn your kernel.
+These are available on many distros, but not included in the mainline
+kernel until overlayfs in 3.11
+
+If you don't have a /usr/portage, download one like normal for gentoo.
+
+If your /usr/portage still has distfiles, packages, or rpm directories,
+set the following variables in /etc/portage/make.conf:
 
     DISTDIR=/var/portage/distfiles
     PKGDIR=/var/portage/packages
@@ -32,9 +42,23 @@ in /etc/portage/make.conf:
 
 (and of course, create those directories)
 
-Next, for this script, you need overlayfs or unionfs.  These are available
-on many distros, but not included in the mainline kernel (until overlayfs
-in 3.11)
+I recommend also setting
+
+    PORTAGE_RSYNC_EXTRA_OPTS="--exclude ChangeLog --delete-excluded"
+
+because who actually cares about the changelog?  If you want to read it you
+can read it online.  Saves a ton of space and bandwidth.
+
+Finally, this script writes the new portage.sqsh files to /usr.  You might
+not like this location.  Simply edit the first line of the script.  Also, the
+script re-mounts /usr/portage for you.  If this was your first time making a
+squash file, you probably want to
+
+    umount /usr/portage
+    rm -rf /usr/portage/*
+    mount /usr/portage.sqsh /usr/portage
+
+to reclaim disk space.
 
 Overrlayfs
 ==========
