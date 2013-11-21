@@ -36,3 +36,10 @@ Next, for this script, you need overlayfs or unionfs.  These are available
 on many distros, but not included in the mainline kernel (until overlayfs
 in 3.11)
 
+Overrlayfs
+==========
+
+This can be hard to find, sometimes (until it is mainlined)
+
+For Linux 3.10, this one works:
+    https://dev.openwrt.org/browser/trunk/target/linux/generic/patches-3.10?rev=37116
