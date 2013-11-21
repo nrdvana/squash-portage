@@ -1,12 +1,15 @@
-squash-portage
-==============
+# squash-portage
+
+## Overview
 
 Script to generate squashfs files for the Gentoo portage tree.
 
 Gentoo portage consists of lots (too many) small files, and often occupies
 more than 500MB of disk space.  A much preferable way to store and use it
-is with a squashfs image (50MB).  Once you have the squashfs image, use this
-script to update it.
+is with a squashfs image (50MB).  Use this script to create and "emerge --sync"
+the squashfs file.
+
+## Description
 
 While you can simply download a new portage tarball, unpack it, and run
 squashfs on it, that takes a lot of time.  This is a script that mounts
@@ -20,8 +23,7 @@ only the new files (according to the file timestamps in the squashfs image)
 are transferred.  The best of all worlds.  Combine with a SSD for lightning-fast
 portage updates.
 
-Prerequisites
-=============
+## Prerequisites
 
   * Overlayfs or Unionfs
   * An existing /usr/portage directory
@@ -60,8 +62,7 @@ squash file, you probably want to
 
 to reclaim disk space.
 
-Overrlayfs
-==========
+## Overrlayfs
 
 This can be hard to find, sometimes (until it is mainlined)
 
