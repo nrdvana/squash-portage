@@ -1,20 +1,25 @@
+#! /bin/sh
+
 SQUASHFS_DIR=/usr
 dt=`date +%Y%m%d`
+overlay_mounted=0;
 
 die() {
 	echo "Script failed: $@";
 	umount /var/tmp/oldportage 2>/dev/null;
 	umount /var/tmp/newportage 2>/dev/null;
+	[ "$overlay_mounted" ] && umount /usr/portage;
 	exit 1;
 }
 
 umount /var/tmp/oldportage 2>/dev/null
 umount /var/tmp/newportage 2>/dev/null
-rm -rf /var/tmp/newportage
 mkdir -p /var/tmp/newportage /var/tmp/oldportage
 
+mount -t tmpfs none /var/tmp/newportage || die "Can't mount tmpfs at /var/tmp/newportage";
+
 if [ -e "$SQUASHFS_DIR/portage.sqsh" ]; then
-	mount "$SQUASHFS_DIR/portage.sqsh" /var/tmp/oldportage || die "Can't mount portage squashfile at /var/tmp/oldportage";
+	mount -o loop,ro "$SQUASHFS_DIR/portage.sqsh" /var/tmp/oldportage || die "Can't mount portage squashfile at /var/tmp/oldportage";
 else
 	echo "Warning: no $SQUASHFS_DIR/portage.sqsh, using current /usr/portage as-is.";
 	mount --bind /usr/portage /var/tmp/oldportage || die "Can't bind-mount /usr/portage to /var/tmp/oldportage";
@@ -27,6 +32,7 @@ elif grep overlayfs /proc/filesystems >/dev/null; then
 else
 	die "Require unionfs or overlayfs, and neither listed in /proc/filesystems";
 fi
+overlay_mounted=1;
 
 emerge --sync || die "Emerge --sync failed";
 
@@ -40,8 +46,9 @@ chmod 444 "$SQUASHFS_DIR/portage-${dt}.sqsh"
 ln -sf "portage-${dt}.sqsh" "$SQUASHFS_DIR/portage.sqsh" || die "Can't create symlink for portage.sqsh";
 
 umount /usr/portage || die "Can't unmount /usr/portage";
+overlay_mounted=0;
 umount /var/tmp/oldportage || die "Can't unmount /var/tmp/oldportage";
-rm -rf /var/tmp/newportage /var/tmp/oldportage || die "Can't clean up /var/tmp/*portage"
+umount /var/tmp/newportage || die "Can't unmount /var/tmp/newportage";
 
+umount /usr/portage 2>/dev/null
 mount "$SQUASHFS_DIR/portage.sqsh" /usr/portage || die "Can't mount new portage.sqsh"
-

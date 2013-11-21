@@ -29,9 +29,23 @@ portage updates.
   * An existing /usr/portage directory
   * All writable portions of portage relocated outside that tree
 
-For this script, you need overlayfs or unionfs support inn your kernel.
+### Overlayfs (or Unionfs)
+
+For this script, you need overlayfs or unionfs support in your kernel.
 These are available on many distros, but not included in the mainline
 kernel until overlayfs in 3.11
+
+This can be hard to find, sometimes (until it is mainlined)
+
+For Linux 3.10, this one works:
+
+    https://dev.openwrt.org/browser/trunk/target/linux/generic/patches-3.10?rev=37116
+
+For Linux <3.3, download unionfs from
+
+    http://www.fsl.cs.sunysb.edu/project-unionfs.html
+
+### Setting-up Read-Only Portage
 
 If you don't have a /usr/portage, download one like normal for gentoo.
 
@@ -44,12 +58,18 @@ set the following variables in /etc/portage/make.conf:
 
 (and of course, create those directories)
 
-I recommend also setting
+I also recommend setting
 
     PORTAGE_RSYNC_EXTRA_OPTS="--exclude ChangeLog --delete-excluded"
 
 because who actually cares about the changelog?  If you want to read it you
 can read it online.  Saves a ton of space and bandwidth.
+
+Also, you probably want it to auto-mount on boot.  Add this to /etc/fstab:
+
+    # <fs>                  <mountpoint>    <type>       <opts>          <dump/pass>
+    /usr/portage.sqsh       /usr/portage    squashfs     loop,ro         0 0
+
 
 Finally, this script writes the new portage.sqsh files to /usr.  You might
 not like this location.  Simply edit the first line of the script.  Also, the
@@ -61,10 +81,3 @@ squash file, you probably want to
     mount /usr/portage.sqsh /usr/portage
 
 to reclaim disk space.
-
-## Overrlayfs
-
-This can be hard to find, sometimes (until it is mainlined)
-
-For Linux 3.10, this one works:
-    https://dev.openwrt.org/browser/trunk/target/linux/generic/patches-3.10?rev=37116
