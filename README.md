@@ -33,7 +33,7 @@ portage updates.
 
 For this script, you need overlayfs or unionfs support in your kernel.
 These are available on many distros, but not included in the mainline
-kernel until overlayfs in 3.11
+kernel until "overlay" in 3.18
 
 This can be hard to find, sometimes (until it is mainlined)
 
@@ -60,7 +60,7 @@ set the following variables in /etc/portage/make.conf:
 
 I also recommend setting
 
-    PORTAGE_RSYNC_EXTRA_OPTS="--exclude ChangeLog --delete-excluded"
+    PORTAGE_RSYNC_EXTRA_OPTS="--exclude ChangeLog* --delete-excluded"
 
 because who actually cares about the changelog?  If you want to read it you
 can read it online.  Saves a ton of space and bandwidth.

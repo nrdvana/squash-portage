@@ -12,11 +12,14 @@ die() {
 	exit 1;
 }
 
+which mksquashfs >/dev/null || die "mksquashfs command not found";
+
 umount /var/tmp/oldportage 2>/dev/null
 umount /var/tmp/newportage 2>/dev/null
 mkdir -p /var/tmp/newportage /var/tmp/oldportage
 
 mount -t tmpfs none /var/tmp/newportage || die "Can't mount tmpfs at /var/tmp/newportage";
+mkdir /var/tmp/newportage/rw /var/tmp/newportage/work
 
 if [ -e "$SQUASHFS_DIR/portage.sqsh" ]; then
 	mount -o loop,ro "$SQUASHFS_DIR/portage.sqsh" /var/tmp/oldportage || die "Can't mount portage squashfile at /var/tmp/oldportage";
@@ -26,9 +29,11 @@ else
 fi
 
 if grep unionfs /proc/filesystems >/dev/null; then
-	mount -t unionfs -o dirs=/var/tmp/newportage=rw:/usr/portage=ro none /usr/portage || die "Can't create overlay on /usr/portage";
+	mount -t unionfs -o dirs=/var/tmp/newportage/rw=rw:/usr/portage=ro none /usr/portage || die "Can't create overlay on /usr/portage";
 elif grep overlayfs /proc/filesystems >/dev/null; then
-	mount -t overlayfs -o lowerdir=/var/tmp/oldportage,upperdir=/var/tmp/newportage none /usr/portage || die "Can't create overlay on /usr/portage";
+	mount -t overlayfs -o lowerdir=/var/tmp/oldportage,upperdir=/var/tmp/newportage/rw none /usr/portage || die "Can't create overlay on /usr/portage";
+elif grep overlay /proc/filesystems >/dev/null; then
+	mount -t overlay -o lowerdir=/var/tmp/oldportage,upperdir=/var/tmp/newportage/rw,workdir=/var/tmp/newportage/work none /usr/portage || die "Can't create overlay on /usr/portage";
 else
 	die "Require unionfs or overlayfs, and neither listed in /proc/filesystems";
 fi
