@@ -25,32 +25,30 @@ portage updates.
 
 ## Prerequisites
 
-  * Overlayfs or Unionfs
-  * An existing /usr/portage directory
+  * Kernel support for Squashfs, and Overlayfs or Unionfs
+  * An existing /var/db/repos/gentoo directory
   * All writable portions of portage relocated outside that tree
+    (which is now the default for gentoo)
+
+### Squashfs
+
+This is a filesystem that acts like a mountable .tar.gz file.  A lot of distros
+don't enable it by default, but you should always fix that! because it's an
+awesome tool to have handy.
 
 ### Overlayfs (or Unionfs)
 
-For this script, you need overlayfs or unionfs support in your kernel.
-These are available on many distros, but not included in the mainline
-kernel until "overlay" in 3.18
-
-This can be hard to find, sometimes (until it is mainlined)
-
-For Linux 3.10, this one works:
-
-    https://dev.openwrt.org/browser/trunk/target/linux/generic/patches-3.10?rev=37116
-
-For Linux <3.3, download unionfs from
-
-    http://www.fsl.cs.sunysb.edu/project-unionfs.html
+Any modern Linux distro (since 3.18) supports overlayfs.  Unionfs was needed
+before that, and I haven't tested unionfs support in a long time, but it's
+still in the script.
 
 ### Setting-up Read-Only Portage
 
-If you don't have a /usr/portage, download one like normal for gentoo.
+Follow the gentoo handbook to get your first portage snapshot (currently at
+/var/db/repos/gentoo)
 
-If your /usr/portage still has distfiles, packages, or rpm directories,
-set the following variables in /etc/portage/make.conf:
+If you still use /usr/portage and it contains the directories for distfiles,
+packages, or rpm directories, set the following variables in /etc/portage/make.conf:
 
     DISTDIR=/var/portage/distfiles
     PKGDIR=/var/portage/packages
@@ -67,17 +65,16 @@ can read it online.  Saves a ton of space and bandwidth.
 
 Also, you probably want it to auto-mount on boot.  Add this to /etc/fstab:
 
-    # <fs>                  <mountpoint>    <type>       <opts>          <dump/pass>
-    /usr/portage.sqsh       /usr/portage    squashfs     loop,ro         0 0
+    # <fs>                      <mountpoint>          <type>    <opts>   <dump/pass>
+    /var/db/repos/portage.sqsh  /var/db/repos/gentoo  squashfs  loop,ro  0 0
 
-
-Finally, this script writes the new portage.sqsh files to /usr.  You might
+Finally, this script writes the new portage.sqsh files to /var/db/repos.  You might
 not like this location.  Simply edit the first line of the script.  Also, the
-script re-mounts /usr/portage for you.  If this was your first time making a
+script re-mounts /var/db/repos/gentoo for you.  If this was your first time making a
 squash file, you probably want to
 
-    umount /usr/portage
-    rm -rf /usr/portage/*
-    mount /usr/portage.sqsh /usr/portage
+    umount /var/db/repos/gentoo
+    rm -rf /var/db/repos/gentoo/*
+    mount /var/db/repos/portage.sqsh /var/db/repos/gentoo
 
 to reclaim disk space.
